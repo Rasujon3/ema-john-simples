@@ -1,9 +1,11 @@
 import React from "react";
+import useProducts from "../../hooks/useProducts";
 
 const Orders = () => {
+  const [products, setProducts] = useProducts();
   return (
     <div>
-      <h1>THis is order</h1>
+      <h1>THis is orders: {products.length}</h1>
     </div>
   );
 };
