@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import {
+  useAuthState,
+  useCreateUserWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
 import auth from "../../firebase.init";
 
 const Shipment = () => {
+  const [user] = useAuthState(auth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
@@ -13,9 +17,7 @@ const Shipment = () => {
   const handleNameBlur = (event) => {
     setName(event.target.value);
   };
-  const handleEmailBlur = (event) => {
-    setEmail(event.target.value);
-  };
+
   const handleAddressdBlur = (event) => {
     setAddress(event.target.value);
   };
@@ -25,6 +27,8 @@ const Shipment = () => {
 
   const handleCreateUser = (event) => {
     event.preventDefault();
+    const shipping = { name, email, address, phone };
+    console.log(shipping);
   };
   return (
     <div className="form-container">
@@ -38,7 +42,8 @@ const Shipment = () => {
           <div className="input-group">
             <label htmlFor="email">Your Email</label>
             <input
-              onBlur={handleEmailBlur}
+              value={user.email}
+              readOnly
               type="email"
               name="email"
               required
@@ -54,7 +59,7 @@ const Shipment = () => {
             />
           </div>
           <div className="input-group">
-            <label htmlFor="confirm-password">Phone Number</label>
+            <label htmlFor="phone">Phone Number</label>
             <input onBlur={handlePhoneBlur} type="text" name="phone" required />
           </div>
           <p style={{ color: "red" }}>{error}</p>
