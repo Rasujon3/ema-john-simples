@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import useProducts from "../../hooks/useProducts";
-import { addToDb, getStoredCart } from "../../utilities/fakedb";
+import useCart from "../../hooks/useCart";
+import { addToDb } from "../../utilities/fakedb";
 import Cart from "../Cart/Cart";
 import Product from "../Product/Product";
 import "./Shop.css";
 
 const Shop = () => {
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useCart();
   const [pageCount, setPageCount] = useState(0);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const url = `http://localhost:5000/product?page=${page}&size=${size}`;
-    fetch(url)
+    fetch(`http://localhost:5000/product?page=${page}&size=${size}`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, [page, size]);
 
   useEffect(() => {
-    const url = `http://localhost:5000/productCount`;
-    fetch(url)
+    fetch("http://localhost:5000/productCount")
       .then((res) => res.json())
       .then((data) => {
         const count = data.count;
@@ -30,20 +28,6 @@ const Shop = () => {
         setPageCount(pages);
       });
   }, []);
-
-  useEffect(() => {
-    const storedCart = getStoredCart();
-    const savedCart = [];
-    for (const id in storedCart) {
-      const addedProduct = products.find((product) => product._id === id);
-      if (addedProduct) {
-        const quantity = storedCart[id];
-        addedProduct.quantity = quantity;
-        savedCart.push(addedProduct);
-      }
-    }
-    setCart(savedCart);
-  }, [products]);
 
   const handleAddToCart = (selectedProduct) => {
     console.log(selectedProduct);
@@ -59,6 +43,7 @@ const Shop = () => {
       exists.quantity = exists.quantity + 1;
       newCart = [...rest, exists];
     }
+
     setCart(newCart);
     addToDb(selectedProduct._id);
   };
@@ -71,7 +56,7 @@ const Shop = () => {
             key={product._id}
             product={product}
             handleAddToCart={handleAddToCart}
-          />
+          ></Product>
         ))}
         <div className="pagination">
           {[...Array(pageCount).keys()].map((number) => (
@@ -79,11 +64,11 @@ const Shop = () => {
               className={page === number ? "selected" : ""}
               onClick={() => setPage(number)}
             >
-              {number}
+              {number + 1}
             </button>
           ))}
 
-          <select onChange={(e) => setSize(e.target.value)} name="" id="">
+          <select onChange={(e) => setSize(e.target.value)}>
             <option value="5">5</option>
             <option value="10" selected>
               10
@@ -96,7 +81,7 @@ const Shop = () => {
       <div className="cart-container">
         <Cart cart={cart}>
           <Link to="/orders">
-            <button>Review Order</button>
+            <button>Review Order </button>
           </Link>
         </Cart>
       </div>
